@@ -149,7 +149,38 @@ jobs:
           ln -sf /builder/kernel /home/runner/work/_actions/ophub/amlogic-s9xxx-armbian/main/compile-kernel/kernel
           ln -sf /builder/output /home/runner/work/_actions/ophub/amlogic-s9xxx-armbian/main/compile-kernel/output
           echo "status=success" >> ${GITHUB_OUTPUT}
+          
+      - name: Add ADB and Wi-Fi Support
+        run: |
+          # 安装 ADB 工具包
+          sudo apt-get update
+          sudo apt-get install -y android-tools-adb
+      
+          # 安装 Wi-Fi 工具包
+          sudo apt-get install -y wpasupplicant wireless-tools
+      
+          # 创建 Wi-Fi 配置文件
+          sudo sh -c "echo 'network={
+            ssid=\"YOUR_WIFI_SSID\"
+            psk=\"YOUR_WIFI_PASSWORD\"
+            key_mgmt=WPA-PSK
+          }' > /etc/wpa_supplicant/wpa_supplicant.conf"
+      
+          # 启用 ADB 服务并设置开机自启
+          sudo systemctl enable adb
+          sudo systemctl start adb
+      
+          # 设置 USB Gadget（可选，如果需要通过 USB 连接 ADB）
+          echo "gadget" | sudo tee /sys/kernel/config/usb_gadget/gadget/function
 
+
+      - name: Configure ADB
+        run: |
+          # 安装 ADB 并设置开机启动
+          sudo apt-get install -y android-tools-adb
+          sudo systemctl enable adb
+          sudo systemctl start adb
+    
       - name: Compile the kernel [ ${{ inputs.kernel_version }} ]
         uses: ophub/amlogic-s9xxx-armbian@main
         if: ${{ steps.mapped.outputs.status }} == 'success' && !cancelled()
