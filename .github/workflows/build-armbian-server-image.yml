@@ -307,27 +307,7 @@ jobs:
           ln -sf /builder/build ${GITHUB_WORKSPACE}/build
           ln -sf /builder/build /home/runner/work/_actions/ophub/amlogic-s9xxx-armbian/main/build
           echo "status=success" >> ${GITHUB_OUTPUT}
-          
-      - name: Install ADB and Wi-Fi tools
-        if: ${{ steps.down.outputs.status }} == 'success' && !cancelled()
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y android-tools-adb wpasupplicant wireless-tools
-
-      - name: Create Wi-Fi configuration file
-        if: ${{ steps.down.outputs.status }} == 'success' && !cancelled()
-        run: |
-          sudo sh -c "echo 'network={
-            ssid=\"kaize2\"
-            psk=\"test#123456\"
-            key_mgmt=WPA-PSK
-          }' > /etc/wpa_supplicant/wpa_supplicant.conf"
-
-      # - name: Configure ADB
-      #   if: ${{ steps.down.outputs.status }} == 'success' && !cancelled()
-      #   run: |
-      #     sudo systemctl enable adb
-      #     sudo systemctl start adb
+                
       - name: Compile Armbian [ ${{ inputs.set_release }} ]
         id: compile
         working-directory: /builder
